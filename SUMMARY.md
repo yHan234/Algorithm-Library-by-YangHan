@@ -5,3 +5,4 @@
 ## Data Structure
 
 * [Fenwick Tree](data-structure/fenwick-tree.md)
+* [Segment Tree](data-structure/segment-tree.md)
