@@ -4,6 +4,6 @@
 
 ## Data Structure
 
-* [MedianHeap](data-structure/medianheap.md)
+* [Median Heap](data-structure/median-heap.md)
 * [Fenwick Tree](data-structure/fenwick-tree.md)
 * [Segment Tree](data-structure/segment-tree.md)
