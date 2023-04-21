@@ -1,5 +1,8 @@
 # Segment Tree
 
+<figure><img src="../.gitbook/assets/segment.png" alt=""><figcaption><p>Segment Tree</p></figcaption></figure>
+
+{% code title="普通线段树" lineNumbers="true" %}
 ```cpp
 // 1-based indexing
 template <typename Info>
@@ -100,7 +103,9 @@ struct Info
     }
 };
 ```
+{% endcode %}
 
+{% code title="懒标记线段树" lineNumbers="true" %}
 ```cpp
 // 1-based indexing
 template <typename Info, typename Tag>
@@ -254,3 +259,52 @@ struct Info
     }
 };
 ```
+{% endcode %}
+
+{% code title="线段树上二分" lineNumbers="true" %}
+```cpp
+// 找到第一个使 f(info) 为 true 的下标
+Index bsearch(Index ql, Index qr, std::function<bool(Info)> f) const
+{
+    return bsearch(1, 1, n, ql, qr, f);
+}
+
+Index bsearch(NodePtr p, Index l, Index r, Index ql, Index qr, std::function<bool(Info)> f) const
+{
+    if (l == ql && r == qr)
+    {
+        if (!f(node[p]))
+        {
+            return -1;
+        }
+
+        if (l == r)
+        {
+            return l;
+        }
+
+        Index m = (l + r) / 2;
+        return f(node[p * 2])
+                    ? bsearch(p * 2, l, m, ql, m, f)
+                    : bsearch(p * 2 + 1, m + 1, r, m + 1, qr, f);
+    }
+
+    Index m = (l + r) / 2;
+    if (qr <= m)
+    {
+        return bsearch(p * 2, l, m, ql, qr, f);
+    }
+    else if (m < ql)
+    {
+        return bsearch(p * 2 + 1, m + 1, r, ql, qr, f);
+    }
+    else
+    {
+        int pos = bsearch(p * 2, l, m, ql, m, f);
+        return (pos == -1)
+                    ? bsearch(p * 2 + 1, m + 1, r, m + 1, qr, f)
+                    : pos;
+    }
+}
+```
+{% endcode %}

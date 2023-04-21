@@ -4,8 +4,9 @@ $$
 c_i = \sum_{i - lowbit(i) + 1}^i a_i
 $$
 
-<figure><img src="../.gitbook/assets/fenwick.svg" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/fenwick.png" alt=""><figcaption><p>Fenwick Tree</p></figcaption></figure>
 
+{% code title="树状数组" lineNumbers="true" %}
 ```cpp
 // 1-based index
 template <typename T = i64>
@@ -69,6 +70,7 @@ struct Fenwick
         return sum(n);
     }
 
+    // 找到最大的p使sum(p)<=s
     Index bsearch(T s)
     {
         Index pos = 0;
@@ -84,7 +86,9 @@ struct Fenwick
     }
 };
 ```
+{% endcode %}
 
+{% code title="差分树状数组" lineNumbers="true" %}
 ```cpp
 // 1-based index
 template <typename T = i64>
@@ -126,7 +130,9 @@ struct DiffFenwick
     }
 };
 ```
+{% endcode %}
 
+{% code title="二维树状数组" lineNumbers="true" %}
 ```cpp
 // 1-based index
 template <typename T = i64>
@@ -173,3 +179,4 @@ struct TwoDFenwick
     }
 };
 ```
+{% endcode %}
