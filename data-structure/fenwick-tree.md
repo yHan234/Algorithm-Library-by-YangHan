@@ -4,12 +4,14 @@ $$
 c_i = \sum_{i - lowbit(i) + 1}^i a_i
 $$
 
-{% code lineNumbers="true" %}
+<figure><img src="../.gitbook/assets/fenwick.svg" alt=""><figcaption></figcaption></figure>
+
 ```cpp
 // 1-based index
 template <typename T = i64>
 struct Fenwick
 {
+    using Size  = int;
     using Index = int;
 
     static Index lowbit(const Index x)
@@ -17,10 +19,10 @@ struct Fenwick
         return x & -x;
     }
 
-    int            n;
+    Size           n;
     std::vector<T> c;
 
-    Fenwick(int n)
+    Fenwick(Size n)
         : n(n), c(n + 1)
     {
     }
@@ -82,20 +84,19 @@ struct Fenwick
     }
 };
 ```
-{% endcode %}
 
-{% code lineNumbers="true" %}
 ```cpp
 // 1-based index
 template <typename T = i64>
 struct DiffFenwick
 {
+    using Size  = int;
     using Index = int;
 
-    int        n;
+    Size       n;
     Fenwick<T> b, bi;
 
-    DiffFenwick(int n)
+    DiffFenwick(Size n)
         : n(n), b(n + 1), bi(n + 1)
     {
     }
@@ -125,24 +126,24 @@ struct DiffFenwick
     }
 };
 ```
-{% endcode %}
 
 ```cpp
 // 1-based index
 template <typename T = i64>
 struct TwoDFenwick
 {
+    using Size  = int;
     using Index = int;
 
-    static int lowbit(const int x)
+    static Index lowbit(const Index x)
     {
         return x & -x;
     }
 
-    int                         n, m;
+    Size                        n, m;
     std::vector<std::vector<T>> c;
 
-    TwoDFenwick(int n, int m)
+    TwoDFenwick(Size n, Size m)
         : n(n), m(m), c(n + 1, std::vector<T>(m + 1))
     {
     }
