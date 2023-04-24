@@ -262,7 +262,7 @@ struct Info
 ```
 {% endcode %}
 
-{% code title="线段树上二分（普通线段树）" lineNumbers="true" %}
+{% code title="线段树上二分" lineNumbers="true" %}
 ```cpp
 // 找到第一个使 f(info) 为 true 的下标
 Index bsearch(Index ql, Index qr, std::function<bool(Info)> f)
