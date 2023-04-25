@@ -5,6 +5,10 @@
 ## Data Structure
 
 * [Median Heap](data-structure/median-heap.md)
+* [Chtholly Tree](data-structure/chtholly-tree.md)
 * [Fenwick Tree](data-structure/fenwick-tree.md)
 * [Segment Tree](data-structure/segment-tree.md)
-* [Chtholly Tree](data-structure/chtholly-tree.md)
+
+## GRAPH
+
+* [Shortest Path](graph/shortest-path.md)
