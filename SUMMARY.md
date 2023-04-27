@@ -11,4 +11,6 @@
 
 ## GRAPH
 
+* [Prepare](graph/prepare.md)
+* [Topological Sorting](graph/topological-sorting.md)
 * [Shortest Path](graph/shortest-path.md)

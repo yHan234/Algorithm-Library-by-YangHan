@@ -1,15 +1,17 @@
 # Shortest Path
 
-<pre class="language-cpp" data-title="Floyd" data-line-numbers><code class="lang-cpp"><strong>// 邻接矩阵
-</strong>void floyd(auto &#x26;G)
+{% code title="Floyd O(V ^ 3)" lineNumbers="true" %}
+```cpp
+// 邻接矩阵
+void floyd(auto &G)
 {
-    int n = G.size();
+    const int N = G.size();
 
-    for (int k = 0; k &#x3C; n; k++)
+    for (int k = 0; k < N; k++)
     {
-        for (int i = 0; i &#x3C; n; i++)
+        for (int i = 0; i < N; i++)
         {
-            for (int j = 0; j &#x3C; n; j++)
+            for (int j = 0; j < N; j++)
             {
                 if (G[i][j] > G[i][k] + G[k][j])
                 {
@@ -20,14 +22,15 @@
         }
     }
 }
-</code></pre>
+```
+{% endcode %}
 
-{% code title="Bellman" lineNumbers="true" %}
+{% code title="Bellman O(V * E)" lineNumbers="true" %}
 ```cpp
 // 点数，边[u, v, w]，起点，最大经过边数
 auto bellman(int N, auto EDGES, int s, int k)
 {
-    std::vector<int> dist(N + 1, INF);
+    std::vector<int> dist(N, INF);
     dist[s] = 0;
     for (int times = k; times--;)
     {
@@ -42,23 +45,24 @@ auto bellman(int N, auto EDGES, int s, int k)
 ```
 {% endcode %}
 
-{% code title="Dijkstra" lineNumbers="true" %}
+{% code title="Dijkstra O(E logV)" lineNumbers="true" %}
 ```cpp
 // [dist, pre, cnt]
 auto dijkstra(const auto &G, int s)
 {
     using pii   = std::pair<int, int>;
-    const int N = G.size(), INF = 0x3f3f3f3f;
+    const int N = G.size();
 
     std::vector<bool> done(N, false);
     std::vector<int>  dist(N, INF);
     std::vector<int>  pre(N, 0); // 前驱节点
     std::vector<int>  cnt(N, 0); // 最短路的数量
-    dist[s] = 0, cnt[s] = 1;
+    dist[s] = 0;
+    cnt[s]  = 1;
 
     std::priority_queue<pii, std::vector<pii>, std::greater<pii>>
         heap; // first:距离 second:结点
-    heap.emplace(0, s);
+    heap.emplace(dist[s], s);
 
     while (!heap.empty())
     {

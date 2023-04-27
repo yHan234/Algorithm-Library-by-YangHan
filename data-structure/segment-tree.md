@@ -95,7 +95,7 @@ struct SegmentTree
 
 struct Info
 {
-    static Info merge(const Info &#x26;lnode, const Info &#x26;rnode)
+    static Info merge(const Info &#x26;lInfo, const Info &#x26;rInfo)
     {
     }
 };
@@ -123,7 +123,7 @@ struct LazySegmentTree
 
     void apply(Index ql, Index qr, const Tag &t)
     {
-        return apply(1, 1, n, ql, qr, t);
+        apply(1, 1, n, ql, qr, t);
     }
 
     Info query(Index ql, Index qr)
@@ -252,7 +252,7 @@ struct Tag
 };
 struct Info
 {
-    static Info merge(const Info &lnode, const Info &rnode)
+    static Info merge(const Info &lInfo, const Info &rInfo)
     {
     }
     void apply(const Tag &t)
@@ -309,5 +309,207 @@ Index bsearch(NodePtr p, Index l, Index r, Index ql, Index qr, std::function<boo
                     : res;
     }
 }
+```
+{% endcode %}
+
+{% code title="动态开点懒标记线段树" lineNumbers="true" %}
+```cpp
+template <typename Info,
+          typename Tag,
+          std::size_t Capacity>
+struct DynamicLazySegmentTree
+{
+    using Index   = int;
+    using NodePtr = int;
+
+    DynamicLazySegmentTree(Index down, Index up)
+        : DOWN(down), UP(up), node(), poolPtr(0), root(newNode())
+    {
+    }
+    void apply(Index l, Index r, const Tag &t)
+    {
+        apply(root, DOWN, UP, l, r, t);
+    }
+    Info query(Index l, Index r)
+    {
+        return query(root, DOWN, UP, l, r);
+    }
+    void modify(Index pos, const Info &info)
+    {
+        modify(root, DOWN, UP, pos, info);
+    }
+
+  private:
+    const Index DOWN, UP;
+    Index       curL, curR;
+
+    struct Node
+    {
+        NodePtr lPtr, rPtr;
+        Info    info;
+        Tag     tag;
+    };
+    std::array<Node, Capacity> node;
+    std::size_t                poolPtr;
+    NodePtr                    root;
+
+    NodePtr newNode()
+    {
+        return poolPtr++;
+    }
+
+    void update(NodePtr p)
+    {
+        const auto lPtr = node[p].lPtr;
+        const auto rPtr = node[p].rPtr;
+
+        node[p].info =
+            Info::merge(node[lPtr].info,
+                        node[rPtr].info,
+                        curL, curR);
+    }
+
+    void apply(NodePtr p, const Tag &t, int l, int r)
+    {
+        node[p].info.apply(t, l, r);
+        node[p].tag.apply(t, l, r);
+    }
+
+    void pushdown(NodePtr p)
+    {
+        auto &lPtr = node[p].lPtr;
+        auto &rPtr = node[p].rPtr;
+
+        if (!lPtr)
+        {
+            lPtr = newNode();
+            rPtr = newNode();
+        }
+
+        auto      &tag = node[p].tag;
+        const auto m   = (curL + curR - 1) / 2;
+
+        apply(lPtr, tag, curL, m);
+        apply(rPtr, tag, m + 1, curR);
+
+        tag = Tag();
+    }
+
+    void apply(NodePtr p, Index l, Index r, Index ql, Index qr, const Tag &t)
+    {
+        curL = l;
+        curR = r;
+
+        if (r < ql || qr < l)
+        {
+            return;
+        }
+        if (ql <= l && r <= qr)
+        {
+            apply(p, t, l, r);
+            return;
+        }
+
+        pushdown(p);
+
+        const auto lPtr = node[p].lPtr;
+        const auto rPtr = node[p].rPtr;
+        const auto m    = (l + r - 1) / 2;
+
+        apply(lPtr, l, m, ql, qr, t);
+        apply(rPtr, m + 1, r, ql, qr, t);
+
+        update(p);
+    }
+
+    Info query(NodePtr p, Index l, Index r, Index ql, Index qr)
+    {
+        curL = l;
+        curR = r;
+
+        if (l == ql && r == qr)
+        {
+            return node[p].info;
+        }
+
+        pushdown(p);
+
+        const auto lPtr = node[p].lPtr;
+        const auto rPtr = node[p].rPtr;
+        const auto m    = (l + r - 1) / 2;
+
+        if (qr <= m)
+        {
+            return query(lPtr, l, m, ql, qr);
+        }
+        else if (m + 1 <= ql)
+        {
+            return query(rPtr, m + 1, r, ql, qr);
+        }
+        else
+        {
+            return Info::merge(query(lPtr, l, m, ql, m),
+                               query(rPtr, m + 1, r, m + 1, qr),
+                               curL, curR);
+        }
+    }
+
+    void modify(NodePtr p, Index l, Index r, Index pos, const Info &info)
+    {
+        curL = l;
+        curR = r;
+
+        if (l == r)
+        {
+            node[p].info = info;
+            return;
+        }
+
+        pushdown(p);
+
+        const auto lPtr = node[p].lPtr;
+        const auto rPtr = node[p].rPtr;
+        const auto m    = (l + r - 1) / 2;
+
+        if (pos <= m)
+        {
+            modify(lPtr, l, m, pos, info);
+        }
+        else
+        {
+            modify(rPtr, m + 1, r, pos, info);
+        }
+
+        update(p);
+    }
+};
+
+struct Tag
+{
+    Tag()
+    {
+    }
+    Tag() // 有参构造
+    {
+    }
+    void apply(const Tag &t, int l, int r)
+    {
+    }
+};
+struct Info
+{
+    Info()
+    {
+    }
+    Info() // 有参构造
+    {
+    }
+    static Info merge(const Info &lInfo, const Info &rInfo, int l, int r)
+    {
+    }
+    void apply(const Tag &t, int l, int r)
+    {
+    }
+};
 ```
 {% endcode %}
