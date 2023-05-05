@@ -1,9 +1,8 @@
 # Segment Tree
 
-<figure><img src="../.gitbook/assets/segment.png" alt=""><figcaption><p>Segment Tree</p></figcaption></figure>
-
-<pre class="language-cpp" data-title="普通线段树" data-line-numbers><code class="lang-cpp">// 1-based indexing
-template &#x3C;typename Info>
+{% code title="普通线段树" lineNumbers="true" %}
+```cpp
+template <typename Info>
 struct SegmentTree
 {
     using Size    = int;
@@ -11,27 +10,39 @@ struct SegmentTree
     using NodePtr = int;
 
     const Size        n;
-    std::vector&#x3C;Info> node;
+    std::vector<Info> node;
 
-    SegmentTree(std::vector&#x3C;Info> init)
-        : SegmentTree(init.size() - 1)
+    SegmentTree(std::vector<Info> init)
+        : SegmentTree(init.size())
     {
-        build(1, 1, n, init);
+        auto build = [&](auto build, NodePtr p, Index l, Index r) {
+            if (r - l == 1)
+            {
+                node[p] = init[l];
+                return;
+            }
+
+            Index m = (l + r) / 2;
+            build(build, 2 * p, l, m);
+            build(build, 2 * p + 1, m, r);
+            update(p);
+        };
+        build(build, 1, 0, n);
     }
 
-    void modify(Index x, const Info &#x26;info)
+    void modify(Index x, const Info &info)
     {
-        modify(1, 1, n, x, info);
+        modify(1, 0, n, x, info);
     }
 
-    Info query(Index ql, Index qr)
+    Info query(Index l, Index r)
     {
-        return query(1, 1, n, ql, qr);
+        return query(1, 0, n, l, r);
     }
 
   private:
     SegmentTree(Size n)
-        : n(n), node(4 &#x3C;&#x3C; std::__lg(n))
+        : n(n), node(4 << std::__lg(n))
     {
     }
 
@@ -40,70 +51,56 @@ struct SegmentTree
         node[p] = Info::merge(node[2 * p], node[2 * p + 1]);
     }
 
-    void build(NodePtr p, Index l, Index r, const std::vector&#x3C;Info> &#x26;init)
+    void modify(NodePtr p, Index l, Index r, Index x, const Info &info)
     {
-        if (l == r)
-        {
-            node[p] = init[l];
-            return;
-        }
-
-        Index m = (l + r) / 2;
-        build(2 * p, l, m, init);
-        build(2 * p + 1, m + 1, r, init);
-        update(p);
-<strong>    }
-</strong>
-    void modify(NodePtr p, Index l, Index r, const Index x, const Info &#x26;info)
-    {
-        if (l == r)
+        if (r - l == 1)
         {
             node[p] = info;
             return;
         }
 
         Index m = (l + r) / 2;
-        (x &#x3C;= m) ? modify(2 * p, l, m, x, info)
-                 : modify(2 * p + 1, m + 1, r, x, info);
+        (x < m) ? modify(2 * p, l, m, x, info)
+                : modify(2 * p + 1, m, r, x, info);
 
         update(p);
     }
 
     Info query(NodePtr p, Index l, Index r, Index ql, Index qr)
     {
-        if (l == ql &#x26;&#x26; r == qr)
+        if (l == ql && r == qr)
         {
             return node[p];
         }
 
         Index m = (l + r) / 2;
-        if (qr &#x3C;= m)
+        if (qr <= m)
         {
             return query(2 * p, l, m, ql, qr);
         }
-        else if (m + 1 &#x3C;= ql)
+        else if (m <= ql)
         {
-            return query(2 * p + 1, m + 1, r, ql, qr);
+            return query(2 * p + 1, m, r, ql, qr);
         }
         else
         {
             return Info::merge(query(2 * p, l, m, ql, m),
-                               query(2 * p + 1, m + 1, r, m + 1, qr));
+                               query(2 * p + 1, m, r, m, qr));
         }
     }
 };
 
 struct Info
 {
-    static Info merge(const Info &#x26;lInfo, const Info &#x26;rInfo)
+    static Info merge(const Info &lInfo, const Info &rInfo)
     {
     }
 };
-</code></pre>
+```
+{% endcode %}
 
 {% code title="懒标记线段树" lineNumbers="true" %}
 ```cpp
-// 1-based indexing
 template <typename Info, typename Tag>
 struct LazySegmentTree
 {
@@ -116,24 +113,36 @@ struct LazySegmentTree
     std::vector<Tag>  tag;
 
     LazySegmentTree(std::vector<Info> init)
-        : LazySegmentTree(init.size() - 1)
+        : LazySegmentTree(init.size())
     {
-        build(1, 1, n, init);
-    }
+        auto build = [&](auto build, NodePtr p, Index l, Index r) {
+            if (r - l == 1)
+            {
+                node[p] = init[l];
+                return;
+            }
 
-    void apply(Index ql, Index qr, const Tag &t)
-    {
-        apply(1, 1, n, ql, qr, t);
-    }
-
-    Info query(Index ql, Index qr)
-    {
-        return query(1, 1, n, ql, qr);
+            Index m = (l + r) / 2;
+            build(build, 2 * p, l, m);
+            build(build, 2 * p + 1, m, r);
+            update(p);
+        };
+        build(build, 1, 0, n);
     }
 
     void modify(Index x, const Info &info)
     {
-        modify(1, 1, n, x, info);
+        modify(1, 0, n, x, info);
+    }
+
+    void apply(Index l, Index r, const Tag &t)
+    {
+        apply(1, 0, n, l, r, t);
+    }
+
+    Info query(Index l, Index r)
+    {
+        return query(1, 0, n, l, r);
     }
 
   private:
@@ -142,15 +151,15 @@ struct LazySegmentTree
     {
     }
 
-    void update(NodePtr p)
-    {
-        node[p] = Info::merge(node[2 * p], node[2 * p + 1]);
-    }
-
     void apply(NodePtr p, const Tag &t)
     {
         node[p].apply(t);
         tag[p].apply(t);
+    }
+
+    void update(NodePtr p)
+    {
+        node[p] = Info::merge(node[2 * p], node[2 * p + 1]);
     }
 
     void pushdown(NodePtr p)
@@ -160,23 +169,26 @@ struct LazySegmentTree
         tag[p] = Tag();
     }
 
-    void build(NodePtr p, Index l, Index r, const std::vector<Info> &init)
+    void modify(NodePtr p, Index l, Index r, Index x, const Info &info)
     {
-        if (l == r)
+        if (r - l == 1)
         {
-            node[p] = init[l];
+            node[p] = info;
             return;
         }
 
+        pushdown(p);
+
         Index m = (l + r) / 2;
-        build(2 * p, l, m, init);
-        build(2 * p + 1, m + 1, r, init);
+        (x < m) ? modify(2 * p, l, m, x, info)
+                : modify(2 * p + 1, m, r, x, info);
+
         update(p);
     }
 
-    void apply(NodePtr p, Index l, Index r, const Index ql, const Index qr, const Tag &t)
+    void apply(NodePtr p, Index l, Index r, Index ql, Index qr, const Tag &t)
     {
-        if (r < ql || qr < l)
+        if (r <= ql || qr <= l)
         {
             return;
         }
@@ -190,7 +202,7 @@ struct LazySegmentTree
 
         Index m = (l + r) / 2;
         apply(2 * p, l, m, ql, qr, t);
-        apply(2 * p + 1, m + 1, r, ql, qr, t);
+        apply(2 * p + 1, m, r, ql, qr, t);
 
         update(p);
     }
@@ -209,41 +221,21 @@ struct LazySegmentTree
         {
             return query(2 * p, l, m, ql, qr);
         }
-        else if (m + 1 <= ql)
+        else if (m <= ql)
         {
-            return query(2 * p + 1, m + 1, r, ql, qr);
+            return query(2 * p + 1, m, r, ql, qr);
         }
         else
         {
             return Info::merge(query(2 * p, l, m, ql, m),
-                               query(2 * p + 1, m + 1, r, m + 1, qr));
+                               query(2 * p + 1, m, r, m, qr));
         }
-    }
-
-    void modify(NodePtr p, Index l, Index r, const Index x, const Info &info)
-    {
-        if (l == r)
-        {
-            node[p] = info;
-            return;
-        }
-
-        pushdown(p);
-
-        Index m = (l + r) / 2;
-        (x <= m) ? modify(2 * p, l, m, x, info)
-                 : modify(2 * p + 1, m + 1, r, x, info);
-
-        update(p);
     }
 };
 
 struct Tag
 {
     Tag() //! 构造和pushdown会使用默认构造
-    {
-    }
-    Tag() // 有参构造
     {
     }
     void apply(const Tag &t)
@@ -264,30 +256,30 @@ struct Info
 
 {% code title="线段树上二分" lineNumbers="true" %}
 ```cpp
-// 找到第一个使 f(info) 为 true 的下标
-Index bsearch(Index ql, Index qr, std::function<bool(Info)> f)
+// 返回使 check() 为 true 的最小位置。 失败返回 -1。
+Index bsearch(Index l, Index r, std::function<bool(Info)> check)
 {
-    return bsearch(1, 1, n, ql, qr, f);
+    return bsearch(1, 0, n, l, r, check);
 }
 
-Index bsearch(NodePtr p, Index l, Index r, Index ql, Index qr, std::function<bool(Info)> f)
+Index bsearch(NodePtr p, Index l, Index r, Index ql, Index qr, std::function<bool(Info)> check)
 {
     if (l == ql && r == qr)
     {
-        if (!f(node[p]))
+        if (!check(node[p]))
         {
             return -1;
         }
 
-        if (l == r)
+        if (r - l == 1)
         {
             return l;
         }
 
         Index m = (l + r) / 2;
-        return f(node[p * 2])
-                    ? bsearch(p * 2, l, m, ql, m, f)
-                    : bsearch(p * 2 + 1, m + 1, r, m + 1, qr, f);
+        return check(node[p * 2])
+                    ? bsearch(p * 2, l, m, ql, m, check)
+                    : bsearch(p * 2 + 1, m, r, m, qr, check);
     }
 
     pushdown(p); // Lazy
@@ -295,18 +287,17 @@ Index bsearch(NodePtr p, Index l, Index r, Index ql, Index qr, std::function<boo
     Index m = (l + r) / 2;
     if (qr <= m)
     {
-        return bsearch(p * 2, l, m, ql, qr, f);
+        return bsearch(p * 2, l, m, ql, qr, check);
     }
-    else if (m + 1 <= ql)
+    else if (m <= ql)
     {
-        return bsearch(p * 2 + 1, m + 1, r, ql, qr, f);
+        return bsearch(p * 2 + 1, m, r, ql, qr, check);
     }
     else
     {
-        int res = bsearch(p * 2, l, m, ql, m, f);
-        return (res == -1)
-                    ? bsearch(p * 2 + 1, m + 1, r, m + 1, qr, f)
-                    : res;
+        Index res = bsearch(p * 2, l, m, ql, m, check);
+        return (res == -1) ? bsearch(p * 2 + 1, m, r, m, qr, check)
+                           : res;
     }
 }
 ```
@@ -489,9 +480,6 @@ struct Tag
     Tag()
     {
     }
-    Tag() // 有参构造
-    {
-    }
     void apply(const Tag &t, int l, int r)
     {
     }
@@ -499,9 +487,6 @@ struct Tag
 struct Info
 {
     Info()
-    {
-    }
-    Info() // 有参构造
     {
     }
     static Info merge(const Info &lInfo, const Info &rInfo, int l, int r)
