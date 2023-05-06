@@ -8,7 +8,7 @@ struct BinaryTrie
     using Int     = std::uint32_t;
     using NodePtr = int;
 
-    const int MAXBIT = 31;
+    const int MAXBIT = 30;
 
     struct Node
     {
@@ -19,19 +19,20 @@ struct BinaryTrie
 
         void init()
         {
-            std::fill(next.begin(), next.end(), 0);
+            next[0] = 0;
+            next[1] = 0;
             // 其它信息的初始化
             cnt = 0;
             num = -1;
         }
     };
     std::array<Node, Capacity> node;
-    NodePtr                    poolPtr = 0;
+    NodePtr                    poolPtr;
 
     NodePtr root;
 
     BinaryTrie()
-        : root(newNode())
+        : poolPtr(0), root(newNode())
     {
     }
 
@@ -58,23 +59,44 @@ struct BinaryTrie
         node[p].num = n;
     }
 
-    // 找到与x异或最大的数
-    Int xor_max(Int x)
+    void erase(Int n)
+    {
+        NodePtr p = root;
+        for (int i = MAXBIT; i >= 0; i--)
+        {
+            Int bit = n >> i & 1;
+            if (!node[p].next[bit] ||
+                !node[node[p].next[bit]].cnt)
+            {
+                assert(false);
+            }
+            p = node[p].next[bit];
+
+            node[p].cnt--;
+        }
+    }
+
+    // 查找与x异或最大的数
+    Int findXorMax(Int x)
     {
         NodePtr p = root;
         for (int i = MAXBIT; i >= 0; i--)
         {
             Int bit = x >> i & 1;
-            // 优先走与当前位不同的路径
-            p = (node[p].next[bit ^ 1])
-                    ? node[p].next[bit ^ 1]
-                    : node[p].next[bit];
+
+            // 当前位不同的路径异或值更大
+            NodePtr bigCh = node[p].next[bit ^ 1];
+            NodePtr smlCh = node[p].next[bit];
+
+            p = (bigCh && node[bigCh].cnt)
+                    ? bigCh
+                    : smlCh;
         }
         return node[p].num;
     }
 
-    // 找到与x异或第k小的数
-    Int xor_kth_min(Int x, int k)
+    // 找到与x异或第k小的数（k从1开始）
+    Int findXorKthMin(Int x, int k)
     {
         NodePtr p = root;
         for (int i = MAXBIT; i >= 0; i--)
@@ -83,7 +105,7 @@ struct BinaryTrie
             NodePtr smCh = node[p].next[bit];
             NodePtr bgCh = node[p].next[bit ^ 1];
 
-            if (!smCh)
+            if (!smCh || !node[smCh].cnt)
             {
                 p = bgCh;
             }

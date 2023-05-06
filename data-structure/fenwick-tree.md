@@ -4,21 +4,15 @@ $$
 c_i = \sum_{i - lowbit(i) + 1}^i a_i
 $$
 
-<figure><img src="../.gitbook/assets/fenwick.png" alt=""><figcaption><p>Fenwick Tree</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/fenwick.svg" alt=""><figcaption><p>Fenwick Tree</p></figcaption></figure>
 
 {% code title="树状数组" lineNumbers="true" %}
 ```cpp
-// 1-based index
-template <typename T = i64>
+template <typename T>
 struct Fenwick
 {
     using Size  = int;
     using Index = int;
-
-    static Index lowbit(const Index x)
-    {
-        return x & -x;
-    }
 
     Size           n;
     std::vector<T> c;
@@ -28,61 +22,43 @@ struct Fenwick
     {
     }
 
-    template <typename Iter>
-    Fenwick(Iter first, Iter last)
-        : n(last - first), c(n + 1)
+    void add(Index x, T v)
     {
-        for (int i = 1; i <= n; i++)
+        assert(0 <= x && x < n);
+        for (Index i = x + 1; i <= n; i += i & -i)
         {
-            c[i] += *(first++);
-            if (i + lowbit(i) <= n)
-            {
-                c[i + lowbit(i)] += c[i];
-            }
+            c[i - 1] += v;
         }
     }
 
-    void add(Index p, T v)
+    T sum(Index x)
     {
-        assert(0 < p && p <= n);
-        for (; p <= n; p += lowbit(p))
+        assert(0 <= x && x <= n);
+        auto res = T();
+        for (Index i = x; i; i -= i & -i)
         {
-            c[p] += v;
-        }
-    }
-
-    T sum(Index p) const
-    {
-        assert(0 <= p && p <= n);
-        T res = 0;
-        for (; p; p -= lowbit(p))
-        {
-            res += c[p];
+            res += c[i - 1];
         }
         return res;
     }
-    T sum(Index l, Index r) const
+    T sum(Index l, Index r)
     {
-        return sum(r) - sum(l - 1);
-    }
-    T sum() const
-    {
-        return sum(n);
+        return sum(r) - sum(l);
     }
 
-    // 找到最大的p使sum(p)<=s
-    Index bsearch(T s)
+    // return max k: sum(k) <= s
+    int maxRight(T s)
     {
-        Index pos = 0;
-        for (int i = std::__lg(n); i >= 0; i--)
+        int k = 0;
+        for (int bit = 1 << std::__lg(n); bit; bit >>= 1)
         {
-            if (pos + (1 << i) <= n && c[pos + (1 << i)] <= s)
+            if (k + bit - 1 < n && c[k + bit - 1] <= s)
             {
-                pos += (1 << i);
-                s -= c[pos];
+                s -= c[k + bit - 1];
+                k += bit;
             }
         }
-        return pos;
+        return k;
     }
 };
 ```
@@ -90,8 +66,7 @@ struct Fenwick
 
 {% code title="差分树状数组" lineNumbers="true" %}
 ```cpp
-// 1-based index
-template <typename T = i64>
+template <typename T>
 struct DiffFenwick
 {
     using Size  = int;
@@ -108,23 +83,19 @@ struct DiffFenwick
     void add(Index l, Index r, T v)
     {
         b.add(l, v);
-        b.add(r + 1, -v);
+        b.add(r, -v);
         bi.add(l, v * l);
-        bi.add(r + 1, -v * (r + 1));
+        bi.add(r, -v * r);
     }
-    T sum(Index p) const
+    T sum(Index p)
     {
-        return (p + 1) * b.sum(p) - bi.sum(p);
+        return p * b.sum(p) - bi.sum(p);
     }
-    T sum(Index l, Index r) const
+    T sum(Index l, Index r)
     {
-        return sum(r) - sum(l - 1);
+        return sum(r) - sum(l);
     }
-    T sum() const
-    {
-        return sum(n);
-    }
-    T get(Index p) const
+    T get(Index p) // ?
     {
         return b.sum(p);
     }
@@ -134,48 +105,42 @@ struct DiffFenwick
 
 {% code title="二维树状数组" lineNumbers="true" %}
 ```cpp
-// 1-based index
-template <typename T = i64>
+template <typename T>
 struct TwoDFenwick
 {
     using Size  = int;
     using Index = int;
 
-    static Index lowbit(const Index x)
-    {
-        return x & -x;
-    }
-
     Size                        n, m;
-    std::vector<std::vector<T>> c;
+    std::vector<std::vector<T>> a;
 
     TwoDFenwick(Size n, Size m)
-        : n(n), m(m), c(n + 1, std::vector<T>(m + 1))
+        : n(n), m(m), a(n, std::vector<T>(m))
     {
     }
 
-    void add(Index x, Index y, T v)
+    void add(Index r, Index c, T v)
     {
-        for (Index i = x; i <= n; i += lowbit(i))
+        for (Index i = r + 1; i <= n; i += i & -i)
         {
-            for (Index j = y; j <= m; j += lowbit(j))
+            for (Index j = c + 1; j <= m; j += j & -j)
             {
-                c[i][j] += v;
+                a[i - 1][j - 1] += v;
             }
         }
     }
 
-    T sum(Index x, Index y)
+    T sum(Index r, Index c)
     {
-        T s = 0;
-        for (Index i = x; i; i -= lowbit(i))
+        T res = T();
+        for (Index i = r; i; i -= i & -i)
         {
-            for (Index j = y; j; j -= lowbit(j))
+            for (Index j = c; j; j -= j & -j)
             {
-                s += c[i][j];
+                res += a[i - 1][j - 1];
             }
         }
-        return s;
+        return res;
     }
 };
 ```

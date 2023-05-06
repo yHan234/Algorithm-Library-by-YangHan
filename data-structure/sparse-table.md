@@ -8,21 +8,21 @@ O(n log n) - O(1)
 
 {% code lineNumbers="true" %}
 ```cpp
-template <typename T>
+template <typename M>
 struct SparseTable
 {
-    std::vector<std::vector<T>>            st;
-    std::function<T(const T &, const T &)> op;
+    std::vector<std::vector<M>>            st;
+    std::function<M(const M &, const M &)> op;
     int                                    baseIndex;
 
     template <typename Iter>
-    SparseTable(Iter begin, Iter end, int baseIdx, std::function<T(const T &, const T &)> op)
+    SparseTable(Iter first, Iter last, int baseIdx, std::function<M(const M &, const M &)> op)
         : op(op), baseIndex(baseIdx - 1)
     {
-        int n = end - begin, logn = std::log2(n);
-        st.assign(logn + 1, std::vector<T>(n + 1));
+        int n = last - first, logn = std::log2(n);
+        st.assign(logn + 1, std::vector<M>(n + 1));
 
-        std::copy(begin, end, st[0].begin() + 1);
+        std::copy(first, last, st[0].begin() + 1);
         for (int k = 1; k <= logn; k++)
         {
             int len = (1 << (k - 1));
@@ -33,13 +33,18 @@ struct SparseTable
         }
     }
 
-    T query(int l, int r)
+    M prod(int l, int r)
     {
         l -= baseIndex;
         r -= baseIndex;
 
-        int len = std::log2(r - l + 1);
-        return op(st[len][l], st[len][r - (1 << len) + 1]);
+        if (l == r)
+        {
+            return M();
+        }
+
+        int len = std::log2(r - l);
+        return op(st[len][l], st[len][r - (1 << len)]);
     }
 };
 ```

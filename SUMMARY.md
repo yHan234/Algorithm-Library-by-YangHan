@@ -5,10 +5,10 @@
 ## Data Structure
 
 * [Disjoint Set](data-structure/disjoint-set.md)
-* [Sparse Table](data-structure/sparse-table.md)
-* [Binary Trie](data-structure/binary-trie.md)
 * [Fenwick Tree](data-structure/fenwick-tree.md)
 * [Segment Tree](data-structure/segment-tree.md)
+* [Binary Trie](data-structure/binary-trie.md)
+* [Sparse Table](data-structure/sparse-table.md)
 * [Median Heap](data-structure/median-heap.md)
 * [Chtholly Tree](data-structure/chtholly-tree.md)
 
@@ -30,3 +30,4 @@
 
 * [Discrete](misc/discrete.md)
 * [Scanline](misc/scanline.md)
+* [Mo's algorithm](misc/mos-algorithm.md)
