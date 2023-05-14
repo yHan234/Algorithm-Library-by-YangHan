@@ -98,7 +98,7 @@ struct WeightedDisjointSet
         std::iota(par.begin(), par.end(), 0);
     }
 
-    Index find(Index x)
+    Index root(Index x)
     {
         while (x != par[x])
         {
@@ -108,13 +108,12 @@ struct WeightedDisjointSet
         return x;
     };
 
-    void unite(Index c, Index p, Vector v)
+    void merge(Index c, Index p, Vector v)
     {
-        Index rtC = find(c);
-        Index rtP = find(p);
+        Index rtC = root(c);
+        Index rtP = root(p);
         assert(rtC != rtP);
 
-        // 按节点数启发式合并
         if (sz[rtC] > sz[rtP])
         {
             std::swap(c, p);
@@ -129,8 +128,8 @@ struct WeightedDisjointSet
 
     Vector query(Index from, Index to)
     {
-        Index rtF = find(from);
-        Index rtT = find(to);
+        Index rtF = root(from);
+        Index rtT = root(to);
         assert(rtF == rtT);
 
         return vec[from] + -vec[to];

@@ -9,18 +9,15 @@
 * [Segment Tree](data-structure/segment-tree.md)
 * [Binary Trie](data-structure/binary-trie.md)
 * [Sparse Table](data-structure/sparse-table.md)
-* [Median Heap](data-structure/median-heap.md)
 * [Chtholly Tree](data-structure/chtholly-tree.md)
+
+## TREE
 
 ## GRAPH
 
 * [Prepare](graph/prepare.md)
 * [Topological Sorting](graph/topological-sorting.md)
 * [Shortest Path](graph/shortest-path.md)
-
-## TREE
-
-* [Cartesian Tree](tree/cartesian-tree.md)
 
 ## String
 
@@ -31,3 +28,8 @@
 * [Discrete](misc/discrete.md)
 * [Scanline](misc/scanline.md)
 * [Mo's algorithm](misc/mos-algorithm.md)
+
+## USELESS
+
+* [Median Heap](useless/median-heap.md)
+* [Cartesian Tree](useless/cartesian-tree.md)

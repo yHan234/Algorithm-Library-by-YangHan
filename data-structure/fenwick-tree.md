@@ -31,7 +31,7 @@ struct Fenwick
         }
     }
 
-    T sum(Index x)
+    T psum(Index x)
     {
         assert(0 <= x && x <= n);
         auto res = T();
@@ -43,10 +43,10 @@ struct Fenwick
     }
     T sum(Index l, Index r)
     {
-        return sum(r) - sum(l);
+        return psum(r) - psum(l);
     }
 
-    // return max k: sum(k) <= s
+    // return max k: psum(k) <= s
     int maxRight(T s)
     {
         int k = 0;
@@ -87,17 +87,17 @@ struct DiffFenwick
         bi.add(l, v * l);
         bi.add(r, -v * r);
     }
-    T sum(Index p)
+    T psum(Index p)
     {
-        return p * b.sum(p) - bi.sum(p);
+        return p * b.psum(p) - bi.psum(p);
     }
     T sum(Index l, Index r)
     {
-        return sum(r) - sum(l);
+        return psum(r) - psum(l);
     }
-    T get(Index p) // ?
+    T get(Index p)
     {
-        return b.sum(p);
+        return b.psum(p + 1);
     }
 };
 ```
@@ -130,7 +130,7 @@ struct TwoDFenwick
         }
     }
 
-    T sum(Index r, Index c)
+    T psum(Index r, Index c)
     {
         T res = T();
         for (Index i = r; i; i -= i & -i)

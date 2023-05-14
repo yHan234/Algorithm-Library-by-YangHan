@@ -8,43 +8,51 @@ O(n log n) - O(1)
 
 {% code lineNumbers="true" %}
 ```cpp
-template <typename M>
+#if __cplusplus >= 201703L
+template <class S, auto op, auto e>
+#else
+template <class S, S (*op)(S, S), S (*e)()>
+#endif
 struct SparseTable
 {
-    std::vector<std::vector<M>>            st;
-    std::function<M(const M &, const M &)> op;
-    int                                    baseIndex;
+    std::vector<std::vector<S>> data;
 
-    template <typename Iter>
-    SparseTable(Iter first, Iter last, int baseIdx, std::function<M(const M &, const M &)> op)
-        : op(op), baseIndex(baseIdx - 1)
+    static int topbit(int x)
     {
-        int n = last - first, logn = std::log2(n);
-        st.assign(logn + 1, std::vector<M>(n + 1));
+        return (x == 0 ? -1 : 31 - __builtin_clz(x));
+    }
 
-        std::copy(first, last, st[0].begin() + 1);
-        for (int k = 1; k <= logn; k++)
+    SparseTable(std::vector<S> init)
+    {
+        int n   = init.size();
+        int log = topbit(n);
+
+        data.resize(log + 1);
+        data[0].resize(n);
+        std::copy(init.begin(), init.end(), data[0].begin());
+
+        for (int i = 0; i < log; i++)
         {
-            int len = (1 << (k - 1));
-            for (int i = 1; i + (1 << k) - 1 <= n; i++)
+            data[i + 1].resize(data[i].size() - (1 << i));
+            for (int j = 0; j < data[i].size() - (1 << i); j++)
             {
-                st[k][i] = op(st[k - 1][i], st[k - 1][i + len]);
+                data[i + 1][j] = op(data[i][j], data[i][j + (1 << i)]);
             }
         }
     }
 
-    M prod(int l, int r)
+    S prod(int l, int r)
     {
-        l -= baseIndex;
-        r -= baseIndex;
-
         if (l == r)
         {
-            return M();
+            return e();
         }
-
-        int len = std::log2(r - l);
-        return op(st[len][l], st[len][r - (1 << len)]);
+        if (l + 1 == r)
+        {
+            return data[0][l];
+        }
+        int k = topbit(r - l - 1);
+        return op(data[k][l], data[k][r - (1 << k)]);
     }
 };
 ```
