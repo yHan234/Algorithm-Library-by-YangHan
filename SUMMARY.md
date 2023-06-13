@@ -7,11 +7,16 @@
 * [Disjoint Set](data-structure/disjoint-set.md)
 * [Fenwick Tree](data-structure/fenwick-tree.md)
 * [Segment Tree](data-structure/segment-tree.md)
-* [Binary Trie](data-structure/binary-trie.md)
 * [Sparse Table](data-structure/sparse-table.md)
-* [Chtholly Tree](data-structure/chtholly-tree.md)
+* [Binary Trie](data-structure/binary-trie.md)
 
 ## TREE
+
+* [Prepare](tree/prepare.md)
+* [DFS Order](tree/dfs-order.md)
+* [Diameter](tree/diameter.md)
+* [Centroid](tree/centroid.md)
+* [LCA](tree/lca.md)
 
 ## GRAPH
 
@@ -25,6 +30,8 @@
 
 ## Misc
 
+* [Mod Int](misc/mod-int.md)
+* [Binary Search](misc/binary-search.md)
 * [Discrete](misc/discrete.md)
 * [Scanline](misc/scanline.md)
 * [Mo's algorithm](misc/mos-algorithm.md)
@@ -32,4 +39,5 @@
 ## USELESS
 
 * [Median Heap](useless/median-heap.md)
+* [Chtholly Tree](useless/chtholly-tree.md)
 * [Cartesian Tree](useless/cartesian-tree.md)

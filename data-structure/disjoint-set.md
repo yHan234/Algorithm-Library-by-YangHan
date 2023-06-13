@@ -17,37 +17,37 @@ struct DisjointSet
         std::iota(par.begin(), par.end(), 0);
     }
 
-    Index root(Index x)
+    Index root(Index u)
     {
-        while (x != par[x])
+        while (u != par[u])
         {
-            x = par[x] = par[par[x]];
+            u = par[u] = par[par[u]];
         }
-        return x;
+        return u;
     }
 
-    void merge(Index x, Index y)
+    void merge(Index u, Index v)
     {
-        x = root(x);
-        y = root(y);
+        u = root(u);
+        v = root(v);
 
-        if (sz[x] < sz[y])
+        if (sz[u] < sz[v])
         {
-            std::swap(x, y);
+            std::swap(u, v);
         }
 
-        sz[x] += sz[y];
-        par[y] = x;
+        sz[u] += sz[v];
+        par[v] = u;
         cnt--;
     }
 
-    bool same(Index x, Index y)
+    bool same(Index u, Index v)
     {
-        return root(x) == root(y);
+        return root(u) == root(v);
     }
-    int size(Index x)
+    int size(Index u)
     {
-        return sz[root(x)];
+        return sz[root(u)];
     }
     int count()
     {
@@ -98,14 +98,14 @@ struct WeightedDisjointSet
         std::iota(par.begin(), par.end(), 0);
     }
 
-    Index root(Index x)
+    Index root(Index u)
     {
-        while (x != par[x])
+        while (u != par[u])
         {
-            vec[x] = vec[x] + vec[par[x]];
-            x = par[x] = par[par[x]];
+            vec[u] = vec[u] + vec[par[u]];
+            u = par[u] = par[par[u]];
         }
-        return x;
+        return u;
     };
 
     void merge(Index c, Index p, Vector v)
@@ -149,6 +149,90 @@ struct Vector
     // 向量加法
     friend Vector operator+(const Vector &lhs, const Vector &rhs)
     {
+    }
+};
+```
+{% endcode %}
+
+{% code title="可撤销并查集" lineNumbers="true" %}
+```cpp
+struct UndoableDisjointSet
+{
+    using Index = int;
+    using Size  = int;
+
+    std::vector<Index> par;
+    std::vector<Size>  sz;
+
+    std::stack<std::pair<int &, int>> parHis;
+    std::stack<std::pair<int &, int>> szHis;
+
+    UndoableDisjointSet(Size n)
+        : par(n), sz(n, 1)
+    {
+        std::iota(par.begin(), par.end(), 0);
+    }
+
+    Index root(Index u)
+    {
+        while (u != par[u])
+        {
+            u = par[u];
+        }
+        return u;
+    }
+
+    bool same(Index u, Index v)
+    {
+        return root(u) == root(v);
+    }
+
+    void merge(int u, int v)
+    {
+        u = root(u);
+        v = root(v);
+
+        if (u == v)
+        {
+            return;
+        }
+        if (sz[u] < sz[v])
+        {
+            std::swap(u, v);
+        }
+
+        szHis.push({sz[u], sz[u]});
+        parHis.push({par[v], par[v]});
+
+        sz[u]  = sz[u] + sz[v];
+        par[v] = u;
+    }
+
+    void undo()
+    {
+        if (parHis.empty())
+        {
+            return;
+        }
+
+        parHis.top().first = parHis.top().second;
+        szHis.top().first  = szHis.top().second;
+
+        parHis.pop();
+        szHis.pop();
+    }
+
+    int version()
+    {
+        return parHis.size();
+    }
+
+    void rollback(int version)
+    {
+        while (parHis.size() > version)
+        {
+            undo();
+        }
     }
 };
 ```
